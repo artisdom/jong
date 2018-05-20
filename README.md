@@ -14,8 +14,9 @@ This is a little project to automatically create note in Joplin, by reading RSS 
 ## Installation
 
 ```
-python3.6 -m venv jong
+python3 -m venv jong
 cd jong
+source bin/activate
 git clone https://github.com/foxmask/jong
 cd jong
 python setup.py install
