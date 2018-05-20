@@ -1,4 +1,5 @@
 # coding: utf-8
+import logging
 import os
 # current dir
 cwd = os.getcwd()
@@ -10,7 +11,7 @@ JONG_CSV_FILE = cwd + '/my_feeds.csv'
 TIME_ZONE = 'Europe/Paris'
 
 # if empty, no import will be done
-JOPLIN_BIN_PATH = ""
+JOPLIN_BIN_PATH = "/usr/bin/joplin"   # set your own path if different
 
 # joplin profile to use - if empty, will use the default path
 JOPLIN_PROFILE_PATH = ""

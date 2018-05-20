@@ -67,7 +67,7 @@ TIME_ZONE = 'Europe/Paris'
 
 # if empty, no import will be done
 
-JOPLIN_BIN_PATH = ""
+JOPLIN_BIN_PATH = ""  # eg /usr/bin/joplin
 
 # joplin profile to use - if empty, will use the default path
 JOPLIN_PROFILE_PATH = ""
@@ -86,7 +86,7 @@ jopline import <value of JONG_MD_PATH settings> <folder_name>
 
 ## Running Jong
 
-it runs in 2 steps.
+It runs in 2 steps.
 
 One for grabbing the content of each RSS/Atom Feeds
 One for creating the markdown file associated 
@@ -94,7 +94,10 @@ One for creating the markdown file associated
 One optional, to import that file in joplin. This one will be done if you have set JOPLIN_BIN_PATH
 Otherwise, the markdown file will be created, and you could import them later when you want by yourself. 
 
-so launch:
+After the import of the markdown, `jong` will set a readable title (and note the name of the markdown file, 
+default behavior) the author and the source url of the article
+
+So launch:
 ```
 jong-run
 ``` 

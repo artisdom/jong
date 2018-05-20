@@ -8,41 +8,56 @@
     >>> from jong import main
     >>> main()
 """
+# system lib
 from __future__ import unicode_literals
-import arrow
 import datetime
-import feedparser
-import glob
-import os
+import shlex
+import subprocess
 import time
+# external lib
+import arrow
+import feedparser
+import pypandoc
+from slugify import slugify
 
 # jong
 from jong import Rss
 from jong import settings
 
-import pypandoc
-from slugify import slugify
-import subprocess
 
 __all__ = ['main']
 
 
-def _build_command(notebook):
+def _joplin_run(import_or_set, **kwargs):
     """
-    build the command line to execute
-    :param notebook: name of the folder in which we import note
-    :return: command to execute
+    build the commands to run :
+    - joplin import
+    - joplin set
+    :param import_or_set value import / set
+    :param kwargs:
+    1) if "import", kwargs contains joplin file and notebook to produce the command
+    joplin import /path/to/file.md notebook_name
+    2) if "set", kwargs contains title or author or source_url file and the associated value to produce the command
+    joplin set article-name title "Article Name"
+    joplin set article-name author "JohnDoe"
+    joplin set article-name source_url "http://url/to/the/article"
     """
-    command1 = '{}/joplin'.format(settings.JOPLIN_BIN_PATH)
+    command1 = settings.JOPLIN_BIN_PATH
 
     if settings.JOPLIN_PROFILE_PATH:
         command1 += ' --profile {}'.format(settings.JOPLIN_PROFILE_PATH)
 
-    command1 = ' import {} {}'.format(settings.JONG_MD_PATH, notebook)
+    if import_or_set == 'import':
+        command1 += ' import {} {}'.format(kwargs['joplin_file'], kwargs['notebook'])
+    elif import_or_set == 'set':
+        command1 += ' set {note} {what} "{value}"'.format(note=kwargs['note'],
+                                                          what=kwargs['what'],
+                                                          value=kwargs['value'])
 
     # this will look like
-    # joplin --profile /path/to/profile import /path/to/note folder
-    return command1
+    # joplin --profile /path/to/profile set note-title title|author|source_url value
+    args = shlex.split(command1)
+    return subprocess.Popen(args, stdout=subprocess.PIPE)
 
 
 def _update_date(rss_id):
@@ -132,8 +147,9 @@ def main():
         Get the activated Feeds
     """
     print("starting ...")
-    file_created = False
+
     for rss in Rss.select().where(Rss.status == True):
+        file_created = False
         print("reading {}".format(rss.name))
         date_triggered = arrow.get(rss.date_triggered).to(settings.TIME_ZONE)
 
@@ -159,28 +175,32 @@ def main():
                 joplin_file = settings.JONG_MD_PATH + '/' + title + '.md'
                 with open(joplin_file, 'w') as out:
                     # call pypandoc to convert html to markdown
-                    out.write(pypandoc.convert(get_content(entry), 'md', format='html'))
-                    file_created = True
+                    content = pypandoc.convert(get_content(entry), 'md', format='html')
+                    content += '[Provided by {}]({})'.format(rss.name, rss.url)
+                    out.write(content)
 
-        # import all note once created in the folder to import
+                if settings.JOPLIN_BIN_PATH:
+                    # 1 import file
+                    print("importing ...")
+                    kwargs = {'joplin_file': joplin_file, 'notebook': rss.notebook}
+                    result = _joplin_run('import', **kwargs)
+                    # set the author, title, source_url
+                    if result:
+                        print("adjust setting ...")
+                        _joplin_run('set', **{'note': title, 'what': 'author', 'value': rss.name})
+                        _joplin_run('set', **{'note': title, 'what': 'title', 'value': entry.title})
+                        _joplin_run('set', **{'note': title, 'what': 'source_url', 'value': entry.link})
+
+                    file_created = True
+                    print("imported")
+        # lets update the date of the handling
         if file_created:
-            # execution de joplin import + dossier où sont les fichiers MD + nom du dossier DANS joplin
-            if settings.JOPLIN_BIN_PATH:
-                command1 = _build_command(rss.notebook)
-                print("Running ", command1)
-                process1 = subprocess.Popen(command1, stdout=subprocess.PIPE)
-                if process1:
-                    # si creation ok
-                    _update_date(rss.id)
-                    # drop file that have been imported
-                    filelist = glob.glob(os.path.join(settings.JONG_MD_PATH, "*.md"))
-                    for f in filelist:
-                        os.remove(f)
-            else:
+
+            if settings.JOPLIN_BIN_PATH is False:
                 print("You don't have set the joplin path, then later, you will need to enter yourself\n"
                       "joplin import {} {}".format(settings.JONG_MD_PATH, rss.notebook))
-                # no joplin import done, the user will launch the import himself
-                _update_date(rss.id)
+
+            _update_date(rss.id)
         else:
             print("no feeds grabbed")
 
