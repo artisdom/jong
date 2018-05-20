@@ -6,6 +6,7 @@ install_requires = [
     'peewee',
     'feedparser',
     'pypandoc',
+    'python-slugify',
 ]
 
 setup(

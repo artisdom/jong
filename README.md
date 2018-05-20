@@ -11,6 +11,7 @@ This is a little project to automatically create note in Joplin, by reading RSS 
 * arrow: to handle date comparison
 * feedparser: the great lib to handle RSS/Atom file
 * pypandoc: file format converted
+* python-slugify: convert a string in slug
 
 ## Installation
 
