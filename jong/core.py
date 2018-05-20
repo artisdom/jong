@@ -1,5 +1,13 @@
 #!/usr/bin/env python
 # coding: utf-8
+"""
+    News generator for creating joplin notes
+
+    Usage:
+
+    >>> from jong import main
+    >>> main()
+"""
 from __future__ import unicode_literals
 import arrow
 import datetime
@@ -9,17 +17,42 @@ import os
 import time
 
 # jong
-import db
-import settings
+from jong import Rss
+from jong import settings
 
 import pypandoc
 from slugify import slugify
 import subprocess
 
+__all__ = ['main']
 
-def _update_date(id):
+
+def _build_command(notebook):
+    """
+    build the command line to execute
+    :param notebook: name of the folder in which we import note
+    :return: command to execute
+    """
+    command1 = '{}/joplin'.format(settings.JOPLIN_BIN_PATH)
+
+    if settings.JOPLIN_PROFILE_PATH:
+        command1 += ' --profile {}'.format(settings.JOPLIN_PROFILE_PATH)
+
+    command1 = ' import {} {}'.format(settings.JONG_MD_PATH, notebook)
+
+    # this will look like
+    # joplin --profile /path/to/profile import /path/to/note folder
+    return command1
+
+
+def _update_date(rss_id):
+    """
+    update the database table  with the execution date
+    :param rss_id: id to update
+    :return: nothing
+    """
     now = arrow.utcnow().to(settings.TIME_ZONE).format('YYYY-MM-DD HH:mm:ssZZ')
-    query = (db.Rss.update({db.Rss.date_triggered: now}).where(db.Rss.id == id)).execute()
+    query = (Rss.update({Rss.date_triggered: now}).where(Rss.id == rss_id)).execute()
 
 
 def _get_published(entry):
@@ -43,7 +76,7 @@ def _get_published(entry):
 
 def _get_content(data, which_content):
     """
-
+    check which content is present in the Feeds to return the right one
     :param data: feeds content
     :param which_content: one of content/summary_detail/description
     :return:
@@ -64,9 +97,9 @@ def _get_content(data, which_content):
 
 def get_content(entry):
     """
-
+    which content to return ?
     :param entry:
-    :return:
+    :return: the body of the RSS data
     """
     content = _get_content(entry, 'content')
 
@@ -84,10 +117,10 @@ def get_data(url_to_parse):
     """
     read the data from a given URL or path to a local file
     :param url_to_parse:
-    :return:
+    :return: Feeds if Feeds well formed
     """
     data = feedparser.parse(url_to_parse)
-
+    # if the feeds is not well formed, return no data at all
     if data.bozo == 1:
         data.entries = ''
 
@@ -96,10 +129,11 @@ def get_data(url_to_parse):
 
 def main():
     """
-        get all the triggers that need to be handled
+        Get the activated Feeds
     """
+    print("starting ...")
     file_created = False
-    for rss in db.Rss.select().where(db.Rss.status == True):
+    for rss in Rss.select().where(Rss.status == True):
         print("reading {}".format(rss.name))
         date_triggered = arrow.get(rss.date_triggered).to(settings.TIME_ZONE)
 
@@ -116,8 +150,7 @@ def main():
             if published:
                 published = arrow.get(str(published)).to(settings.TIME_ZONE)
             # create md file only for unread item (when publish is less than last triggered execution
-            if (date_triggered is not None and published is not None and now >= published >= date_triggered) or \
-                    (published is not None and now >= published):
+            if date_triggered is not None and published is not None and now >= published >= date_triggered:
 
                 title = slugify(entry.title)
                 title = title.strip()
@@ -133,10 +166,8 @@ def main():
         if file_created:
             # execution de joplin import + dossier où sont les fichiers MD + nom du dossier DANS joplin
             if settings.JOPLIN_BIN_PATH:
-                command1 = '{}/joplin import {} {}'.format(settings.JOPLIN_BIN_PATH,
-                                                           settings.JONG_MD_PATH,
-                                                           rss.notebook)
-                print(command1)
+                command1 = _build_command(rss.notebook)
+                print("Running ", command1)
                 process1 = subprocess.Popen(command1, stdout=subprocess.PIPE)
                 if process1:
                     # si creation ok
@@ -150,6 +181,8 @@ def main():
                       "joplin import {} {}".format(settings.JONG_MD_PATH, rss.notebook))
                 # no joplin import done, the user will launch the import himself
                 _update_date(rss.id)
+        else:
+            print("no feeds grabbed")
 
 
 if __name__ == '__main__':

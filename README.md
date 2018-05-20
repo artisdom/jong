@@ -11,6 +11,17 @@ This is a little project to automatically create note in Joplin, by reading RSS 
 * arrow: to handle date comparison
 * feedparser: the great lib to handle RSS/Atom file
 
+## Installation
+
+```
+python3.6 -m venv jong
+cd jong
+git clone https://github.com/foxmask/jong
+cd jong
+python setup.py install
+cd ..
+```
+
 ## Defining RSS Feeds
 
 Put you Feeds in a CSV file named `my_feeds.csv`
@@ -31,8 +42,8 @@ where:
 
 launch
 
-```python
-python load_data.py
+```
+jong-load
 ```
 
 this will read `my_feeds.csv` and:
@@ -45,8 +56,9 @@ if the data already exists, it updates it. Thus for existing handled Feeds, the 
 in the `settings.py` file, you can set those parms :
 
 ```python  
-JONG_MD_PATH = BASE_DIR + '/import/'
-JONG_DB = BASE_DIR + '/jong/jong.sqlite'
+JONG_MD_PATH = cwd + '/import/'
+JONG_DB = cwd + '/db.sqlite3'
+JONG_CSV_FILE = cwd + '/my_feeds.csv'
 
 TIME_ZONE = 'Europe/Paris'
 
@@ -54,10 +66,14 @@ TIME_ZONE = 'Europe/Paris'
 
 JOPLIN_BIN_PATH = ""
 
+# joplin profile to use - if empty, will use the default path
+JOPLIN_PROFILE_PATH = ""
 ```
 
 * `JONG_MD_PATH` is the path where to create the markdown file to import
+* `JONG_CSV_FILE` the path of the CSV file
 * `TIME_ZONE` is your own timezone
+* `JOPLIN_PROFILE_PATH` 
 * `JOPLIN_BIN_PATH` is the path where to find Joplin. If not set, the import of markdown will not be triggered by joplin_notegen.
 Then you can launch the import by yourself with :
 
@@ -65,7 +81,7 @@ Then you can launch the import by yourself with :
 jopline import <value of JONG_MD_PATH settings> <folder_name>  
 ```
 
-## Running joplin notegen
+## Running Jong
 
 it runs in 2 steps.
 
@@ -77,7 +93,7 @@ Otherwise, the markdown file will be created, and you could import them later wh
 
 so launch:
 ```
-python jong.py
+jong-run
 ``` 
 
 Enjoy!

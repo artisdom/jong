@@ -1,13 +1,16 @@
 # coding: utf-8
 import os
 # current dir
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+cwd = os.getcwd()
 
-JONG_MD_PATH = BASE_DIR + '/import/'
-JONG_DB = BASE_DIR + '/jong/jong.sqlite'
+JONG_MD_PATH = cwd + '/import/'
+JONG_DB = cwd + '/db.sqlite3'
+JONG_CSV_FILE = cwd + '/my_feeds.csv'
 
 TIME_ZONE = 'Europe/Paris'
 
 # if empty, no import will be done
-
 JOPLIN_BIN_PATH = ""
+
+# joplin profile to use - if empty, will use the default path
+JOPLIN_PROFILE_PATH = ""

@@ -11,7 +11,7 @@ setup(
     name='jong',
     version=version,
     description='JOplin Note Generator',
-    long_description='Creating note automatically into Joplin, from your favorites RSS/Atom Feeds',
+    long_description=open('README.md').read(),
     author='FoxMaSk',
     maintainer='FoxMaSk',
     author_email='foxmaskhome@gmail.com',
@@ -32,4 +32,10 @@ setup(
     ],
     install_requires=install_requires,
     include_package_data=True,
+    entry_points={
+        'console_scripts': [
+            'jong-run = jong.core:main',
+            'jong-load = jong.load_data:load',
+        ],
+    },
 )
