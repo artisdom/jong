@@ -10,6 +10,7 @@ This is a little project to automatically create note in Joplin, by reading RSS 
 * peewee: for the database
 * arrow: to handle date comparison
 * feedparser: the great lib to handle RSS/Atom file
+* pypandoc: file format converted
 
 ## Installation
 

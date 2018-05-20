@@ -5,6 +5,7 @@ install_requires = [
     'arrow',
     'peewee',
     'feedparser',
+    'pypandoc',
 ]
 
 setup(
