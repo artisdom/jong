@@ -24,7 +24,7 @@ import pypandoc
 from slugify import slugify
 
 # jong
-from db import Rss
+from jong import Rss
 
 
 __all__ = ['main']

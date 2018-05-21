@@ -10,7 +10,7 @@
 """
 import arrow
 import csv
-from db import Rss
+from jong import Rss
 
 
 def load():

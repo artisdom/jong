@@ -45,12 +45,12 @@ where:
 launch
 
 ```
-python jong/load_data.py 
+python jong.load_data 
 ```
 
 for additionnal settings run
 ```
-python jong/load_data.py --help 
+python jong.load_data --help 
 usage: load_data.py [-h] [--csv-file CSV_FILE] [--db DB] [--timezone TIMEZONE]
 
 JOplin Notes Generator: CSV Loader
@@ -86,12 +86,12 @@ default behavior) the author and the source url of the article
 
 So launch:
 ```
-python jong/core.py 
+python -m jong.core 
 ``` 
 
 for additionnal settings run
 ```
-python jong/core.py --help 
+python jong.core --help 
 usage: core.py [-h] [--settings SETTINGS] [--joplin-profile PROFILE]
                [--joplin-bin BIN] [--jong-md-path JONG_MD_PATH]
                [--jong-csv-file JONG_CSV_FILE] [--timezone TIMEZONE]
