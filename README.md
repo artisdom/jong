@@ -20,6 +20,8 @@ python3 -m venv jong
 cd jong
 source bin/activate
 git clone https://github.com/foxmask/jong
+cd jong
+pip install -r requirements.txt
 ```
 
 ## Defining RSS Feeds
