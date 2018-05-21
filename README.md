@@ -69,6 +69,8 @@ this will read `my_feeds.csv` and:
 if the data does not exist, it creates it
 if the data already exists, it updates it. Thus for existing handled Feeds, the date of the last handling is still in the database 
 
+By default, the database and csv file, will be looked up into the current directory
+
 ## Running Jong
 
 It runs in 2 steps.
@@ -111,4 +113,6 @@ optional arguments:
   --debug DEBUG         running in debug mode
 
 ```  
+By default, the joplin-md-path and jong-csv-file will be looked up into the current directory
+
 Enjoy!
