@@ -61,7 +61,10 @@ def _joplin_run(import_or_set, **kwargs):
     commands_args = shlex.split(command1)
     if DEBUG:
         print(commands_args)
-    result = subprocess.check_call(commands_args, stdout=subprocess.PIPE)
+    try:
+        result = subprocess.check_call(commands_args, stdout=subprocess.PIPE)
+    except subprocess.CalledProcessError as e:
+        result = e
     return True if result == 0 else False
 
 
