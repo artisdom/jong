@@ -10,15 +10,14 @@
 """
 import arrow
 import csv
-from jong import Rss
-from jong import settings
+from db import Rss
 
 
 def load():
 
     print("opening cvs file")
 
-    with open(settings.JONG_CSV_FILE) as csvfile:
+    with open(JONG_CSV_FILE) as csvfile:
 
         print("reading cvs file")
 
@@ -43,7 +42,7 @@ def load():
                                   url=row['url'],
                                   tag=row['tag'],
                                   status=status,
-                                  date_triggered=arrow.utcnow().to(settings.TIME_ZONE))
+                                  date_triggered=arrow.utcnow().to(TIME_ZONE))
                           .execute()
                           )
 
@@ -51,4 +50,20 @@ def load():
 
 
 if __name__ == '__main__':
+    import argparse
+    import os
+
+    cwd = os.getcwd()
+    parser = argparse.ArgumentParser(description='JOplin Notes Generator: CSV Loader')
+    parser.add_argument('--csv-file', dest='csv_file', default=cwd + '/my_feeds.csv',
+                        help='path of the csv file')
+    parser.add_argument('--db', dest='db', default=cwd + '/db.sqlite3',
+                        help='path to the SQLite database')
+    parser.add_argument('--timezone', dest='timezone', default='Europe/Paris',
+                        help='Time Zone')
+
+    args = parser.parse_args()
+    JONG_CSV_FILE = args.csv_file
+    JONG_DB = args.db
+    TIME_ZONE = args.timezone
     load()

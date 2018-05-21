@@ -12,7 +12,7 @@ install_requires = [
 setup(
     name='jong',
     version=version,
-    description='JOplin Note Generator',
+    description='JOplin Notes Generator',
     long_description=open('README.md').read(),
     author='FoxMaSk',
     maintainer='FoxMaSk',
@@ -23,21 +23,12 @@ setup(
     packages=find_packages(),
     classifiers=[
         'Development Status :: 4 - Beta',
-        'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Operating System :: OS Independent',
-        'Topic :: Internet :: WWW/HTTP',
-        'Topic :: Software Development :: Libraries'
         'Topic :: Utilities',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.6',
     ],
     install_requires=install_requires,
-    include_package_data=True,
-    entry_points={
-        'console_scripts': [
-            'jong-run = jong.core:main',
-            'jong-load = jong.load_data:load',
-        ],
-    },
+    include_package_data=True
 )

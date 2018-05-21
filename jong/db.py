@@ -1,8 +1,7 @@
 # coding: utf-8
 import peewee
-from jong import settings
 
-DATABASE_CONNECTION = peewee.SqliteDatabase(settings.JONG_DB)
+DATABASE_CONNECTION = peewee.SqliteDatabase("db.sqlite3")
 
 
 class BaseModel(peewee.Model):
