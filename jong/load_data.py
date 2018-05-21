@@ -42,7 +42,7 @@ def load():
                                   url=row['url'],
                                   tag=row['tag'],
                                   status=status,
-                                  date_triggered=arrow.utcnow().to(TIME_ZONE))
+                                  date_triggered=str(arrow.utcnow().to(TIME_ZONE)))
                           .execute()
                           )
 
