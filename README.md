@@ -1,10 +1,10 @@
-# JONG: JOplin Note Generator
+#  JONG: JOplin Note Generator
 
 ## Description
 
 This is a little project to automatically create note in Joplin, by reading RSS Feeds
 
-## Requirements
+##  Requirements
 
 * Python 3+
 * peewee: for the database
@@ -76,7 +76,7 @@ It runs in 2 steps.
 One for grabbing the content of each RSS/Atom Feeds
 One for creating the markdown file associated 
 
-One optional, to import that file in joplin. This one will be done if you have set JOPLIN_BIN_PATH
+One optional, to import that file in joplin. This one will be done if you have set joplin bin path (with `--joplin-bin /path/to/joplin`)
 Otherwise, the markdown file will be created, and you could import them later when you want by yourself. 
 
 After the import of the markdown, `jong` will set a readable title (and note the name of the markdown file, 
