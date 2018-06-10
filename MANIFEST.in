@@ -1,2 +1,6 @@
 include *.md *.txt
-include my_feeds.csv
+
+recursive-include jong *.html *.png *.css *.gif *.jpg *.jpeg
+recursive-include jong/static *
+recursive-include jong/templates *
+

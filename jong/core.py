@@ -3,249 +3,232 @@
 """
     News generator for creating joplin notes
 
-    Usage:
+    The script use the webclipper service port if activated
+    otherwise the 'standard' way, by creating MD file and importing them.
 
-    >>> from jong import main
-    >>> main()
 """
 # system lib
 from __future__ import unicode_literals
-import argparse
 import datetime
-import os
+import json
 import shlex
 import subprocess
 import time
+
+from django.conf import settings
 
 # external lib
 import arrow
 import feedparser
 import pypandoc
+import requests
 from slugify import slugify
 
-# jong
-from jong import Rss
+from jong.models import Rss
+
+from logging import getLogger
+# create logger
+logger = getLogger('jong.jong')
 
 
-__all__ = ['main']
+class Core:
 
+    def _joplin_run(self, import_or_set, **kwargs):
+        """
+        build the commands to run :
+        - joplin import
+        - joplin set
+        :param import_or_set value import / set
+        :param kwargs:
+        1) if "import", kwargs contains joplin file and notebook to produce the command
+        joplin import /path/to/file.md notebook_name
+        2) if "set", kwargs contains title or author or source_url file and the associated value to produce the command
+        joplin set article-name title "Article Name"
+        joplin set article-name author "JohnDoe"
+        joplin set article-name source_url "http://url/to/the/article"
+        """
+        command1 = settings.JOPLIN_BIN
 
-def _joplin_run(import_or_set, **kwargs):
-    """
-    build the commands to run :
-    - joplin import
-    - joplin set
-    :param import_or_set value import / set
-    :param kwargs:
-    1) if "import", kwargs contains joplin file and notebook to produce the command
-    joplin import /path/to/file.md notebook_name
-    2) if "set", kwargs contains title or author or source_url file and the associated value to produce the command
-    joplin set article-name title "Article Name"
-    joplin set article-name author "JohnDoe"
-    joplin set article-name source_url "http://url/to/the/article"
-    """
-    command1 = JOPLIN_BIN
+        if settings.JOPLIN_PROFILE:
+            command1 += ' --profile {}'.format(settings.JOPLIN_PROFILE)
 
-    if JOPLIN_PROFILE:
-        command1 += ' --profile {}'.format(JOPLIN_PROFILE)
+        if import_or_set == 'import':
+            command1 += ' import {} {}'.format(kwargs['joplin_file'], kwargs['notebook'])
+        elif import_or_set == 'set':
+            command1 += ' set {note} {what} "{value}"'.format(note=kwargs['note'],
+                                                              what=kwargs['what'],
+                                                              value=kwargs['value'])
 
-    if import_or_set == 'import':
-        command1 += ' import {} {}'.format(kwargs['joplin_file'], kwargs['notebook'])
-    elif import_or_set == 'set':
-        command1 += ' set {note} {what} "{value}"'.format(note=kwargs['note'],
-                                                          what=kwargs['what'],
-                                                          value=kwargs['value'])
+        # this will look like
+        # joplin --profile /path/to/profile set note-title title|author|source_url value
+        commands_args = shlex.split(command1)
+        if settings.DEBUG:
+            logger.debug(commands_args)
+        try:
+            result = subprocess.check_call(commands_args, stdout=subprocess.PIPE)
+        except subprocess.CalledProcessError as e:
+            result = e
+        return True if result == 0 else False
 
-    # this will look like
-    # joplin --profile /path/to/profile set note-title title|author|source_url value
-    commands_args = shlex.split(command1)
-    if DEBUG:
-        print(commands_args)
-    try:
-        result = subprocess.check_call(commands_args, stdout=subprocess.PIPE)
-    except subprocess.CalledProcessError as e:
-        result = e
-    return True if result == 0 else False
+    def _update_date(self, rss_id):
+        """
+        update the database table  with the execution date
+        :param rss_id: id to update
+        :return: nothing
+        """
+        now = arrow.utcnow().to(settings.TIME_ZONE).format('YYYY-MM-DD HH:mm:ssZZ')
+        Rss.objects.filter(id=rss_id).update(date_triggered=now)
 
+    def _get_published(self, entry):
+        """
+        get the 'published' attribute
+        :param entry:
+        :return: datetime
+        """
+        published = None
+        if hasattr(entry, 'published_parsed'):
+            if entry.published_parsed is not None:
+                published = datetime.datetime.utcfromtimestamp(time.mktime(entry.published_parsed))
+        elif hasattr(entry, 'created_parsed'):
+            if entry.created_parsed is not None:
+                published = datetime.datetime.utcfromtimestamp(time.mktime(entry.created_parsed))
+        elif hasattr(entry, 'updated_parsed'):
+            if entry.updated_parsed is not None:
+                published = datetime.datetime.utcfromtimestamp(time.mktime(entry.updated_parsed))
+        return published
 
-def _update_date(rss_id):
-    """
-    update the database table  with the execution date
-    :param rss_id: id to update
-    :return: nothing
-    """
-    now = arrow.utcnow().to(TIME_ZONE).format('YYYY-MM-DD HH:mm:ssZZ')
-    query = (Rss.update({Rss.date_triggered: now}).where(Rss.id == rss_id)).execute()
+    def _get_content(self, data, which_content):
+        """
+        check which content is present in the Feeds to return the right one
+        :param data: feeds content
+        :param which_content: one of content/summary_detail/description
+        :return:
+        """
+        content = ''
 
+        if data.get(which_content):
+            if isinstance(data.get(which_content), feedparser.FeedParserDict):
+                content = data.get(which_content)['value']
+            elif not isinstance(data.get(which_content), str):
+                if 'value' in data.get(which_content)[0]:
+                    content = data.get(which_content)[0].value
+            else:
+                content = data.get(which_content)
 
-def _get_published(entry):
-    """
-    get the 'published' attribute
-    :param entry:
-    :return: datetime
-    """
-    published = None
-    if hasattr(entry, 'published_parsed'):
-        if entry.published_parsed is not None:
-            published = datetime.datetime.utcfromtimestamp(time.mktime(entry.published_parsed))
-    elif hasattr(entry, 'created_parsed'):
-        if entry.created_parsed is not None:
-            published = datetime.datetime.utcfromtimestamp(time.mktime(entry.created_parsed))
-    elif hasattr(entry, 'updated_parsed'):
-        if entry.updated_parsed is not None:
-            published = datetime.datetime.utcfromtimestamp(time.mktime(entry.updated_parsed))
-    return published
+        return content
 
+    def get_content(self, entry):
+        """
+        which content to return ?
+        :param entry:
+        :return: the body of the RSS data
+        """
+        content = self._get_content(entry, 'content')
 
-def _get_content(data, which_content):
-    """
-    check which content is present in the Feeds to return the right one
-    :param data: feeds content
-    :param which_content: one of content/summary_detail/description
-    :return:
-    """
-    content = ''
+        if content == '':
+            content = self._get_content(entry, 'summary_detail')
 
-    if data.get(which_content):
-        if isinstance(data.get(which_content), feedparser.FeedParserDict):
-            content = data.get(which_content)['value']
-        elif not isinstance(data.get(which_content), str):
-            if 'value' in data.get(which_content)[0]:
-                content = data.get(which_content)[0].value
-        else:
-            content = data.get(which_content)
+        if content == '':
+            if entry.get('description'):
+                content = entry.get('description')
 
-    return content
+        return content
 
+    def get_data(self, url_to_parse):
+        """
+        read the data from a given URL or path to a local file
+        :param url_to_parse:
+        :return: Feeds if Feeds well formed
+        """
+        data = feedparser.parse(url_to_parse)
+        # if the feeds is not well formed, return no data at all
+        if data.bozo == 1:
+            data.entries = ''
 
-def get_content(entry):
-    """
-    which content to return ?
-    :param entry:
-    :return: the body of the RSS data
-    """
-    content = _get_content(entry, 'content')
+        return data
 
-    if content == '':
-        content = _get_content(entry, 'summary_detail')
+    def create_note_content(self, entry, name):
+        """
+        convert the HTML "body" into Markdown
+        :param entry:
+        :param name:
+        :return:
+        """
+        # call pypandoc to convert html to markdown
+        content = pypandoc.convert(self.get_content(entry), 'md', format='html')
+        content += '[Provided by {}]({})'.format(name, entry.link)
+        return content
 
-    if content == '':
-        if entry.get('description'):
-            content = entry.get('description')
+    def get_folders(self):
+        """
 
-    return content
+        :return:
+        """
+        res = requests.get("http://127.0.0.1:{}/folders".format(settings.JOPLIN_WEBCLIPPER))
+        return res.json()
 
+    def create_note(self, entry, rss):
+        """
+        Post a new note to the JoplinWebcliperServer
+        :param entry:
+        :param rss:
+        :return: boolean
+        """
+        # get the content of the Feeds
+        content = self.create_note_content(entry=entry, name=rss.name)
+        # build the json data
+        folders = self.get_folders()
 
-def get_data(url_to_parse):
-    """
-    read the data from a given URL or path to a local file
-    :param url_to_parse:
-    :return: Feeds if Feeds well formed
-    """
-    data = feedparser.parse(url_to_parse)
-    # if the feeds is not well formed, return no data at all
-    if data.bozo == 1:
-        data.entries = ''
+        notebook_id = 0
+        for folder in folders:
+            if folder.get('title') == rss.notebook:
+                notebook_id = folder.get('id')
+        if notebook_id == 0:
+            for folder in folders:
+                if 'children' in folder:
+                    for child in folder.get('children'):
+                        if child.get('title') == rss.notebook:
+                            notebook_id = child.get('id')
+        data = {'title': entry.title,
+                'body': content,
+                'parent_id': notebook_id,
+                'author': rss.name,
+                'source_url': entry.link}
+        res = requests.post("http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER), json=data)
+        return True if res.status_code == 200 else False
 
-    return data
+    def create_note_file(self, entry, rss):
+        """
 
+        :param entry:
+        :param rss:
+        :return:
+        """
+        result = False
+        title = slugify(entry.title)
+        title = title.strip()
+        logger.debug("Creating MD file named ", title)
+        # create file one by one
+        joplin_file = settings.JONG_MD_PATH + '/' + title + '.md'
+        with open(joplin_file, 'w') as out:
+            content = self.create_note_content(name=rss.name, entry=entry)
+            out.write(content)
 
-def main():
-    """
-        Get the activated Feeds
-    """
-    print("starting ...")
+        if settings.JOPLIN_BIN:
+            # 1 import file
+            msg = "importing news ..."
+            if settings.JOPLIN_PROFILE:
+                msg = "importing news into profile {} ...".format(settings.JOPLIN_PROFILE)
+            logger.debug(msg)
+            kwargs = {'joplin_file': joplin_file, 'notebook': rss.notebook}
+            result = self._joplin_run('import', **kwargs)
+            # set the author, title, source_url
+            if result:
+                if settings.DEBUG:
+                    logger.debug("adjust setting ...")
+                self._joplin_run('set', **{'note': title, 'what': 'title', 'value': entry.title})
+                self._joplin_run('set', **{'note': title, 'what': 'author', 'value': rss.name})
+                self._joplin_run('set', **{'note': title, 'what': 'source_url', 'value': entry.link})
 
-    for rss in Rss.select().where(Rss.status == True):
-        file_created = False
-        print("reading {}".format(rss.name))
-        date_triggered = arrow.get(rss.date_triggered).to(TIME_ZONE)
-
-        now = arrow.utcnow().to(TIME_ZONE)
-
-        # retrieve the data
-        feeds = get_data(rss.url)
-
-        for entry in feeds.entries:
-            # entry.*_parsed may be None when the date in a RSS Feed is invalid
-            # so will have the "now" date as default
-            published = _get_published(entry)
-
-            if published:
-                published = arrow.get(str(published)).to(TIME_ZONE)
-            # create md file only for unread item (when publish is less than last triggered execution
-            if date_triggered is not None and published is not None and now >= published >= date_triggered:
-
-                title = slugify(entry.title)
-                title = title.strip()
-                print("Creating MD file named ", title)
-                # create file one by one
-                joplin_file = JONG_MD_PATH + '/' + title + '.md'
-                with open(joplin_file, 'w') as out:
-                    # call pypandoc to convert html to markdown
-                    content = pypandoc.convert(get_content(entry), 'md', format='html')
-                    content += '[Provided by {}]({})'.format(rss.name, entry.link)
-                    out.write(content)
-
-                if JOPLIN_BIN:
-                    # 1 import file
-                    msg = "importing news ..."
-                    if JOPLIN_PROFILE:
-                        msg = "importing news into profile {} ...".format(JOPLIN_PROFILE)
-                    print(msg)
-                    kwargs = {'joplin_file': joplin_file, 'notebook': rss.notebook}
-                    result = _joplin_run('import', **kwargs)
-                    # set the author, title, source_url
-                    if result:
-                        if DEBUG:
-                            print("adjust setting ...")
-                        _joplin_run('set', **{'note': title, 'what': 'title', 'value': entry.title})
-                        _joplin_run('set', **{'note': title, 'what': 'author', 'value': rss.name})
-                        _joplin_run('set', **{'note': title, 'what': 'source_url', 'value': entry.link})
-
-                    file_created = True
-                    print("imported")
-        # lets update the date of the handling
-        if file_created:
-
-            if JOPLIN_BIN is False:
-                print("You don't have set the joplin path, then later, you will need to enter yourself\n"
-                      "joplin --profile {} import {} {}".format(JOPLIN_PROFILE, JONG_MD_PATH, rss.notebook))
-
-            _update_date(rss.id)
-        else:
-            print("no feeds grabbed")
-
-
-if __name__ == '__main__':
-    from pathlib import Path
-
-    cwd = os.getcwd()
-    parser = argparse.ArgumentParser(description='JOplin Notes Generator')
-    parser.add_argument('--settings', dest='settings', default=cwd + '/settings.py',
-                        help='path of the settings of jong')
-    parser.add_argument('--joplin-profile', dest='profile', default='',
-                        help='joplin path to the profile')
-    parser.add_argument('--joplin-bin', dest='bin', default='/usr/bin/joplin',
-                        help='default path to the joplin program - default value "/usr/bin/joplin"')
-    parser.add_argument('--jong-md-path', dest='jong_md_path', default=cwd + '/import',
-                        help='path to store markdown files generated by jong - default value ' + cwd + '/import')
-    parser.add_argument('--jong-csv-file', dest='jong_csv_file', default=cwd + '/my_feeds.csv',
-                        help='path to my_feeds.csv file - default value ' + cwd + '/my_feeds.csv')
-    parser.add_argument('--timezone', dest='timezone', default='Europe/Paris',
-                        help='Time Zone - default value "Europe/Paris"')
-    parser.add_argument('--debug', dest='debug', default=False,
-                        help='running in debug mode')
-    args = parser.parse_args()
-
-    my_file = Path(args.bin)
-
-    # settings
-    JOPLIN_BIN = args.bin if my_file.is_file() else ''
-    DEBUG = args.debug
-    JOPLIN_PROFILE = args.profile
-    JONG_MD_PATH = args.jong_md_path
-    JONG_CSV_FILE = args.jong_csv_file
-    TIME_ZONE = args.timezone
-
-    main()
+            logger.info("imported")
+        return result

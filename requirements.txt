@@ -1,5 +1,6 @@
+Django
 arrow
 feedparser
-peewee
 pypandoc
 python-slugify
+requests

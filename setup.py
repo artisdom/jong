@@ -3,10 +3,11 @@ from jong import __version__ as version
 
 install_requires = [
     'arrow',
-    'peewee',
+    'Django',
     'feedparser',
     'pypandoc',
     'python-slugify',
+    'requests',
 ]
 
 setup(
