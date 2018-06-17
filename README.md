@@ -30,6 +30,7 @@ pip install -r requirements.txt
 ```
 
 ## Starting the app
+
 ```
 ./manage runserver &
 ```
@@ -40,7 +41,7 @@ access to `http://127.0.0.1:8000/` and add your feeds
 
 ## Settings of JONG / Joplin
 
-Just provide the Joplin Webclipper port, eg:
+In the `settings.py` file, just provide the Joplin Webclipper port, eg:
 ```
 # Where is Joplin
 # the port used by the webclipper from the menu "Tools > Webclipper option"
@@ -49,7 +50,8 @@ JOPLIN_WEBCLIPPER = 41184
 
 ## Running Jong
 
-run joplin desktop to enbale the webclipper service, then 
+run joplin desktop to enable the webclipper service, then 
+
 ```
 ./manage.py run 
 ``` 
@@ -59,7 +61,7 @@ Have a look at your Joplin desktop to find your news :)
 
 ## Running Tests
 
-run joplin desktop to enbale the webclipper service, then 
+run this  
 ```
 ./manage.py test -v2 
 ``` 

@@ -3,10 +3,9 @@ from jong import __version__ as version
 
 install_requires = [
     'arrow',
-    'Django',
+    'Django>=2.0,<3.0',
     'feedparser',
     'pypandoc',
-    'python-slugify',
     'requests',
 ]
 

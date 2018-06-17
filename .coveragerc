@@ -10,4 +10,5 @@ omit =
     setup.py
     jong/wsgi.py
     jong/management/commands/*
+    manage.py
 
