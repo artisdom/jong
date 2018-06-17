@@ -10,9 +10,6 @@
 # system lib
 from __future__ import unicode_literals
 import datetime
-import json
-import shlex
-import subprocess
 import time
 
 from django.conf import settings
@@ -22,7 +19,6 @@ import arrow
 import feedparser
 import pypandoc
 import requests
-from slugify import slugify
 
 from jong.models import Rss
 
@@ -32,43 +28,6 @@ logger = getLogger('jong.jong')
 
 
 class Core:
-
-    def _joplin_run(self, import_or_set, **kwargs):
-        """
-        build the commands to run :
-        - joplin import
-        - joplin set
-        :param import_or_set value import / set
-        :param kwargs:
-        1) if "import", kwargs contains joplin file and notebook to produce the command
-        joplin import /path/to/file.md notebook_name
-        2) if "set", kwargs contains title or author or source_url file and the associated value to produce the command
-        joplin set article-name title "Article Name"
-        joplin set article-name author "JohnDoe"
-        joplin set article-name source_url "http://url/to/the/article"
-        """
-        command1 = settings.JOPLIN_BIN
-
-        if settings.JOPLIN_PROFILE:
-            command1 += ' --profile {}'.format(settings.JOPLIN_PROFILE)
-
-        if import_or_set == 'import':
-            command1 += ' import {} {}'.format(kwargs['joplin_file'], kwargs['notebook'])
-        elif import_or_set == 'set':
-            command1 += ' set {note} {what} "{value}"'.format(note=kwargs['note'],
-                                                              what=kwargs['what'],
-                                                              value=kwargs['value'])
-
-        # this will look like
-        # joplin --profile /path/to/profile set note-title title|author|source_url value
-        commands_args = shlex.split(command1)
-        if settings.DEBUG:
-            logger.debug(commands_args)
-        try:
-            result = subprocess.check_call(commands_args, stdout=subprocess.PIPE)
-        except subprocess.CalledProcessError as e:
-            result = e
-        return True if result == 0 else False
 
     def _update_date(self, rss_id):
         """
@@ -196,39 +155,3 @@ class Core:
                 'source_url': entry.link}
         res = requests.post("http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER), json=data)
         return True if res.status_code == 200 else False
-
-    def create_note_file(self, entry, rss):
-        """
-
-        :param entry:
-        :param rss:
-        :return:
-        """
-        result = False
-        title = slugify(entry.title)
-        title = title.strip()
-        logger.debug("Creating MD file named ", title)
-        # create file one by one
-        joplin_file = settings.JONG_MD_PATH + '/' + title + '.md'
-        with open(joplin_file, 'w') as out:
-            content = self.create_note_content(name=rss.name, entry=entry)
-            out.write(content)
-
-        if settings.JOPLIN_BIN:
-            # 1 import file
-            msg = "importing news ..."
-            if settings.JOPLIN_PROFILE:
-                msg = "importing news into profile {} ...".format(settings.JOPLIN_PROFILE)
-            logger.debug(msg)
-            kwargs = {'joplin_file': joplin_file, 'notebook': rss.notebook}
-            result = self._joplin_run('import', **kwargs)
-            # set the author, title, source_url
-            if result:
-                if settings.DEBUG:
-                    logger.debug("adjust setting ...")
-                self._joplin_run('set', **{'note': title, 'what': 'title', 'value': entry.title})
-                self._joplin_run('set', **{'note': title, 'what': 'author', 'value': rss.name})
-                self._joplin_run('set', **{'note': title, 'what': 'source_url', 'value': entry.link})
-
-            logger.info("imported")
-        return result

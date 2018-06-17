@@ -1,0 +1,13 @@
+[report]
+exclude_lines =
+    pragma: no cover
+    raise ImportError
+    except AttributeError
+
+[run]
+omit =
+    */migrations/*, *tests*
+    setup.py
+    jong/wsgi.py
+    jong/management/commands/*
+

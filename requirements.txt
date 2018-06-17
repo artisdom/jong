@@ -2,5 +2,4 @@ Django
 arrow
 feedparser
 pypandoc
-python-slugify
 requests
