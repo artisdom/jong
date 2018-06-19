@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('date_triggered', models.DateTimeField(auto_created=True, auto_now=True)),
                 ('name', models.CharField(max_length=200, unique=True)),
-                ('status', models.BooleanField(default=False)),
+                ('status', models.BooleanField(default=True)),
                 ('notebook', models.CharField(max_length=200)),
                 ('url', models.URLField()),
                 ('tag', models.CharField(max_length=40, null=True, blank=True)),

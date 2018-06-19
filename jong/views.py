@@ -2,6 +2,7 @@
 from __future__ import unicode_literals
 import arrow
 from django.conf import settings
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
@@ -31,7 +32,41 @@ def rss_switch_status(request, pk):
     return HttpResponseRedirect(reverse('base'))
 
 
-class SuccessMixin(object):
+def page_it(data, record_per_page, page=''):
+    """
+        return the data of the current page
+    """
+    paginator = Paginator(data, record_per_page)
+    try:
+        data = paginator.page(page)
+    except PageNotAnInteger:
+        # If page is not an integer, deliver first page.
+        data = paginator.page(1)
+    except EmptyPage:
+        # If page is out of range (e.g. 9999),
+        # deliver last page of results.
+        data = paginator.page(paginator.num_pages)
+
+    return data
+
+
+class PaginateMixin:
+    """
+        Mixin to just handle the Paginate behavior
+    """
+    def get_context_data(self, **kw):
+        data = self.model.objects.all()
+        # paginator vars
+        record_per_page = 3
+        page = self.request.GET.get('page')
+        # paginator call
+        data = page_it(data, record_per_page, page)
+        context = super(PaginateMixin, self).get_context_data(**kw)
+        context['data'] = data
+        return context
+
+
+class SuccessMixin:
     """
         Mixin to just return to the expected page
         where the name is based on the model name
@@ -51,10 +86,30 @@ class RssListView(ListView):
     """
     context_object_name = "rss_list"
     queryset = Rss.objects.all()
-    paginate_by = 3
 
     def get_queryset(self):
         return self.queryset.filter().order_by('-date_triggered')
+
+    def get_context_data(self, **kw):
+        data = self.queryset.filter().order_by('-date_triggered')
+        # paginator vars
+        record_per_page = 10
+        page = self.request.GET.get('page')
+        # paginator call
+        paginator = Paginator(data, record_per_page)
+        try:
+            data = paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            data = paginator.page(1)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999),
+            # deliver last page of results.
+            data = paginator.page(paginator.num_pages)
+
+        context = super(RssListView, self).get_context_data(**kw)
+        context['data'] = data
+        return context
 
 
 class RssCreateView(RssMixin, CreateView):

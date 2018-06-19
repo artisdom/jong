@@ -8,7 +8,7 @@ class Rss(models.Model):
         Rss
     """
     name = models.CharField(max_length=200, unique=True)
-    status = models.BooleanField(default=False)
+    status = models.BooleanField(default=True)
     notebook = models.CharField(max_length=200)
     url = models.URLField()
     tag = models.CharField(max_length=40, null=True, blank=True)

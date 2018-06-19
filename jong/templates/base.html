@@ -36,6 +36,13 @@
                 </button>
                 <a class="navbar-brand" href="{% url 'base' %}" title="{% trans 'Home' %}">Jong</a>
             </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="{% url 'add'  %}" title="{% trans 'Add a new Feed' %}"><span class="glyphicon glyphicon-plus icon-white"></span> {% trans "New Feed" %}</a>
+                    </li>
+                </ul>
+            </div>
         </div>
     </nav>
     {% endblock navbar %}
