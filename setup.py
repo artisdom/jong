@@ -6,7 +6,8 @@ install_requires = [
     'Django>=2.0,<3.0',
     'feedparser',
     'pypandoc',
-    'requests',
+    'asks',
+    'trio',
 ]
 
 setup(

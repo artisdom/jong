@@ -10,21 +10,24 @@
 # system lib
 from __future__ import unicode_literals
 import datetime
+from logging import getLogger
 import time
+
+from jong.models import Rss
 
 from django.conf import settings
 
 # external lib
+import asks
 import arrow
 import feedparser
 import pypandoc
-import requests
+import trio
 
-from jong.models import Rss
-
-from logging import getLogger
 # create logger
 logger = getLogger('jong.jong')
+
+asks.init('trio')
 
 
 class Core:
@@ -38,7 +41,7 @@ class Core:
         now = arrow.utcnow().to(settings.TIME_ZONE).format('YYYY-MM-DD HH:mm:ssZZ')
         Rss.objects.filter(id=rss_id).update(date_triggered=now)
 
-    def _get_published(self, entry):
+    def get_published(self, entry):
         """
         get the 'published' attribute
         :param entry:
@@ -106,7 +109,7 @@ class Core:
 
         return data
 
-    def create_note_content(self, entry, name):
+    async def create_note_content(self, entry, name):
         """
         convert the HTML "body" into Markdown
         :param entry:
@@ -118,15 +121,15 @@ class Core:
         content += '[Provided by {}]({})'.format(name, entry.link)
         return content
 
-    def get_folders(self):
+    async def get_folders(self):
         """
-
+        get the list of all the folders of the joplin profile
         :return:
         """
-        res = requests.get("http://127.0.0.1:{}/folders".format(settings.JOPLIN_WEBCLIPPER))
+        res = await asks.get("http://127.0.0.1:{}/folders".format(settings.JOPLIN_WEBCLIPPER))
         return res.json()
 
-    def create_note(self, entry, rss):
+    async def create_note(self, entry, rss):
         """
         Post a new note to the JoplinWebcliperServer
         :param entry:
@@ -134,9 +137,9 @@ class Core:
         :return: boolean
         """
         # get the content of the Feeds
-        content = self.create_note_content(entry=entry, name=rss.name)
+        content = await self.create_note_content(entry=entry, name=rss.name)
         # build the json data
-        folders = self.get_folders()
+        folders = await self.get_folders()
 
         notebook_id = 0
         for folder in folders:
@@ -153,5 +156,40 @@ class Core:
                 'parent_id': notebook_id,
                 'author': rss.name,
                 'source_url': entry.link}
-        res = requests.post("http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER), json=data)
-        return True if res.status_code == 200 else False
+        res = await asks.post("http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER), json=data)
+        if res.status_code == 200:
+            self._update_date(rss.id)
+            logger.info("%s: article added %s" % (rss.name, entry.title))
+
+
+async def go():
+
+    if settings.JOPLIN_WEBCLIPPER:
+        res = await asks.get('http://127.0.0.1:{}/ping'.format(settings.JOPLIN_WEBCLIPPER))
+        if res.text == 'JoplinClipperServer':
+            core = Core()
+            data = Rss.objects.filter(status=True)
+
+            async with trio.open_nursery() as n:
+
+                for rss in data:
+                    logger.info("reading %s" % rss.name)
+                    date_triggered = arrow.get(rss.date_triggered).to(settings.TIME_ZONE)
+
+                    now = arrow.utcnow().to(settings.TIME_ZONE)
+
+                    # retrieve the data
+                    feeds = core.get_data(rss.url)
+
+                    for entry in feeds.entries:
+                        # entry.*_parsed may be None when the date in a RSS Feed is invalid
+                        # so will have the "now" date as default
+                        published = core.get_published(entry)
+
+                        if published:
+                            published = arrow.get(str(published)).to(settings.TIME_ZONE)
+                        # create md file only for unread item (when publish is less than last triggered execution
+                        if date_triggered is not None and published is not None and now >= published >= date_triggered:
+                            n.start_soon(core.create_note, entry, rss)
+    else:
+        logger.info('Check "Tools > Webclipper options"  if the service is enable')
