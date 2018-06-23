@@ -1,4 +1,4 @@
-#  JONG: JOplin Note Generator
+#  JONG: JOplin Notes Generator
 
 ## Description
 
@@ -6,13 +6,14 @@ This is a little project to automatically create note in Joplin, by reading RSS 
 
 ##  Requirements
 
-* Python 3.4+
+* Python 3.6+
 * Django 2
 * arrow: to handle date comparison
 * feedparser: the great lib to handle RSS/Atom file
 * pypandoc: file format converted
 * asks: async http
 * trio: async made easy
+* requests: HTTP for Humans
 
 ## Installation
 

@@ -1,9 +1,8 @@
 {% extends "base.html" %}
-{% load static %}
 {% load i18n %}
-{% block title %}Edit RSS Feed{% endblock %}
+{% block title %}{% if mode == 'add' %}Add{% else %}Edit{% endif %} a RSS Feed{% endblock %}
 {% block content %}
-    <div class="col-md-6" id="weight-content-form">
+    <div class="col-md-6">
         <form method="post" role="form" class="form-horizontal" action="">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -16,13 +15,13 @@
                 {% if form.name.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.name.errors }}</div>
                 <label for="id_name" class="col-sm-4 control-label">{% trans "Name" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.name }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
                 <label for="id_name" class="col-sm-4 control-label">{% trans "Name" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.name }}
                 </div>
                 {% endif %}
@@ -32,13 +31,13 @@
                 {% if form.url.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.url.errors }}</div>
                 <label for="id_url" class="col-sm-4 control-label">{% trans "url" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.url }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
                 <label for="id_url" class="col-sm-4 control-label">{% trans "URL" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.url }}
                 </div>
                 {% endif %}
@@ -47,13 +46,13 @@
                 {% if form.notebook.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.notebook.errors }}</div>
                 <label for="id_notebook" class="col-sm-4 control-label">{% trans "Notebook" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.notebook }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
                 <label for="id_notebook" class="col-sm-4 control-label">{% trans "Notebook" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.notebook }}
                 </div>
                 {% endif %}
@@ -63,13 +62,13 @@
                 {% if form.tag.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.tag.errors }}</div>
                 <label for="id_tag" class="col-sm-4 control-label">{% trans "Tag" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.tag }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
                 <label for="id_tag" class="col-sm-4 control-label">{% trans "Tag" %}</label>
-                <div class="col-sm-4">
+                <div class="col-sm-5">
                 {{ form.tag }}
                 </div>
                 {% endif %}

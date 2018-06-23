@@ -4,3 +4,4 @@ feedparser
 pypandoc
 asks
 trio
+requests

@@ -8,6 +8,7 @@ install_requires = [
     'pypandoc',
     'asks',
     'trio',
+    'requests',
 ]
 
 setup(

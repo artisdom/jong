@@ -3,19 +3,24 @@
 """
     News generator for creating joplin notes
 
-    The script use the webclipper service port if activated
-    otherwise the 'standard' way, by creating MD file and importing them.
+    The script use the webclipper service port - Enable the service from the menu "Tools > Webclipper option"
+    Launch
 
+    python manage.py run
+
+    Have Fun
 """
-# system lib
+# std lib
 from __future__ import unicode_literals
 import datetime
 from logging import getLogger
 import time
 
-from jong.models import Rss
-
+# django
 from django.conf import settings
+
+# project
+from jong.models import Rss
 
 # external lib
 import asks

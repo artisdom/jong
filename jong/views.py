@@ -6,12 +6,11 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404
 from django.urls import reverse
-from django.views.generic import TemplateView, UpdateView, ListView, DeleteView, CreateView
+from django.views.generic import UpdateView, ListView, DeleteView, CreateView
 
 # trigger_happy
 from jong.forms import RssForm
 from jong.models import Rss
-
 
 import logging
 # Get an instance of a logger
@@ -66,18 +65,12 @@ class PaginateMixin:
         return context
 
 
-class SuccessMixin:
-    """
-        Mixin to just return to the expected page
-        where the name is based on the model name
-    """
-    def get_success_url(self):
-        return reverse('base')
-
-
-class RssMixin(SuccessMixin):
+class RssMixin:
     form_class = RssForm
     model = Rss
+
+    def get_success_url(self):
+        return reverse('base')
 
 
 class RssListView(ListView):
@@ -116,29 +109,27 @@ class RssCreateView(RssMixin, CreateView):
     """
         list of Rss
     """
-    template_name = 'jong/rss_create.html'
+    template_name = 'jong/rss.html'
+
+    def get_context_data(self, **kw):
+        context = super(RssCreateView, self).get_context_data(**kw)
+        context['mode'] = 'add'
+        return context
 
 
 class RssUpdateView(RssMixin, UpdateView):
     """
         Form to update description
     """
-    template_name = 'jong/rss_update.html'
+    template_name = 'jong/rss.html'
 
-
-class RssEditedTemplateView(TemplateView):
-    """
-        just a simple form to say thanks :P
-    """
+    def get_context_data(self, **kw):
+        context = super(RssUpdateView, self).get_context_data(**kw)
+        context['mode'] = 'Edit'
+        return context
 
 
 class RssDeleteView(RssMixin, DeleteView):
     """
         page to delete a trigger
-    """
-
-
-class RssDeletedTemplateView(TemplateView):
-    """
-        just a simple form to say thanks :P
     """
