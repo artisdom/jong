@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a little project to automatically create note in Joplin, by reading RSS Feeds
+This is a little project to automatically create note in [Joplin](https://github.com/laurent22/joplin), by reading RSS Feeds
 
 ##  Requirements
 
