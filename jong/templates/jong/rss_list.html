@@ -35,13 +35,13 @@
     <td><a href="{{ data.url }}">{{ data.url }}</a></td>
     <td>{{ data.date_triggered }}</td>
     <td>{{ data.notebook }}</td>
-    <td><a class="btn btn-sm btn-info" role="button" href="{% url 'edit' data.id %}"><span class="glyphicon glyphicon-pencil icon-white"></span></a>
+    <td><a class="btn btn-sm btn-md btn-lg btn-success" role="button" href="{% url 'edit' data.id %}"><span class="glyphicon glyphicon-pencil icon-white"></span></a>
         {% if data.status %}
         <a class="btn btn-sm btn-md btn-lg btn-primary" role="button" href="{% url 'switch' data.id %}" title="{% trans 'Set this RSS off' %}"><span class="glyphicon glyphicon-off icon-white"></span></a>
         {% else %}
-        <a class="btn btn-sm btn-md btn-lg btn-success" role="button" href="{% url 'switch' data.id %}" title="{% trans 'Set this RSS on' %}"><span class="glyphicon glyphicon-off icon-white"></span></a>
+        <a class="btn btn-sm btn-md btn-lg btn-warning" role="button" href="{% url 'switch' data.id %}" title="{% trans 'Set this RSS on' %}"><span class="glyphicon glyphicon-off icon-white"></span></a>
         {% endif %}
-        <a class="btn btn-sm btn-danger" role="button"  href="{% url 'delete' data.id %}"><span class="glyphicon glyphicon-trash icon-white"></span></a>
+        <a class="btn btn-sm btn-md btn-lg btn-danger" role="button"  href="{% url 'delete' data.id %}"><span class="glyphicon glyphicon-trash icon-white"></span></a>
     </td>
 </tr>
 {% endfor %}

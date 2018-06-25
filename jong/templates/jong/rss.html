@@ -2,7 +2,7 @@
 {% load i18n %}
 {% block title %}{% if mode == 'add' %}Add{% else %}Edit{% endif %} a RSS Feed{% endblock %}
 {% block content %}
-    <div class="col-md-6">
+    <div class="col-md-11">
         <form method="post" role="form" class="form-horizontal" action="">
         {% csrf_token %}
         {{ form.non_field_errors }}
@@ -14,14 +14,14 @@
             <div class="form-group{% if form.name.errors %} has-error has-feedback{% endif %}">
                 {% if form.name.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.name.errors }}</div>
-                <label for="id_name" class="col-sm-4 control-label">{% trans "Name" %}</label>
-                <div class="col-sm-5">
+                <label for="id_name" class="col-sm-2 control-label">{% trans "Name" %}</label>
+                <div class="col-sm-8">
                 {{ form.name }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
-                <label for="id_name" class="col-sm-4 control-label">{% trans "Name" %}</label>
-                <div class="col-sm-5">
+                <label for="id_name" class="col-sm-2 control-label">{% trans "Name" %}</label>
+                <div class="col-sm-8">
                 {{ form.name }}
                 </div>
                 {% endif %}
@@ -30,14 +30,14 @@
             <div class="form-group{% if form.date_weights.errors %} has-error has-feedback{% endif %}">
                 {% if form.url.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.url.errors }}</div>
-                <label for="id_url" class="col-sm-4 control-label">{% trans "url" %}</label>
-                <div class="col-sm-5">
+                <label for="id_url" class="col-sm-2 control-label">{% trans "url" %}</label>
+                <div class="col-sm-8">
                 {{ form.url }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
-                <label for="id_url" class="col-sm-4 control-label">{% trans "URL" %}</label>
-                <div class="col-sm-5">
+                <label for="id_url" class="col-sm-2 control-label">{% trans "URL" %}</label>
+                <div class="col-sm-8">
                 {{ form.url }}
                 </div>
                 {% endif %}
@@ -45,14 +45,14 @@
             <div class="form-group{% if form.date_weights.errors %} has-error has-feedback{% endif %}">
                 {% if form.notebook.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.notebook.errors }}</div>
-                <label for="id_notebook" class="col-sm-4 control-label">{% trans "Notebook" %}</label>
-                <div class="col-sm-5">
+                <label for="id_notebook" class="col-sm-2 control-label">{% trans "Notebook" %}</label>
+                <div class="col-sm-8">
                 {{ form.notebook }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
-                <label for="id_notebook" class="col-sm-4 control-label">{% trans "Notebook" %}</label>
-                <div class="col-sm-5">
+                <label for="id_notebook" class="col-sm-2 control-label">{% trans "Notebook" %}</label>
+                <div class="col-sm-8">
                 {{ form.notebook }}
                 </div>
                 {% endif %}
@@ -61,21 +61,21 @@
             <div class="form-group{% if form.date_weights.errors %} has-error has-feedback{% endif %}">
                 {% if form.tag.errors %}
                 <div class="col-sm-offset-1 col-sm-10 alert alert-danger" role="alert">{{ form.tag.errors }}</div>
-                <label for="id_tag" class="col-sm-4 control-label">{% trans "Tag" %}</label>
-                <div class="col-sm-5">
+                <label for="id_tag" class="col-sm-2 control-label">{% trans "Tag" %}</label>
+                <div class="col-sm-8">
                 {{ form.tag }}
                 <span class="glyphicon glyphicon-remove form-control-feedback"></span>
                 </div>
                 {% else %}
-                <label for="id_tag" class="col-sm-4 control-label">{% trans "Tag" %}</label>
-                <div class="col-sm-5">
+                <label for="id_tag" class="col-sm-2 control-label">{% trans "Tag" %}</label>
+                <div class="col-sm-8">
                 {{ form.tag }}
                 </div>
                 {% endif %}
             </div>
 
             <div class="form-group">
-                <div class="col-sm-offset-4 col-sm-4">
+                <div class="col-sm-offset-2 col-sm-8">
                     <button class="btn btn-primary">{% trans "Save" %}</button>
                 </div>
             </div>
