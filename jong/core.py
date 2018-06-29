@@ -122,7 +122,7 @@ class Core:
         :return:
         """
         # call pypandoc to convert html to markdown
-        content = pypandoc.convert(self.get_content(entry), 'md', format='html')
+        content = pypandoc.convert(self.get_content(entry), 'markdown_github', format='html')
         content += '[Provided by {}]({})'.format(name, entry.link)
         return content
 
