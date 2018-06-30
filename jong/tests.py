@@ -18,6 +18,8 @@ class SettingsTest(TestCase):
     def test_settings(self):
         self.assertTrue(settings.JOPLIN_WEBCLIPPER)
         self.assertTrue(settings.JOPLIN_WEBCLIPPER > 0)
+        self.assertTrue(settings.PYPANDOC_MARKDOWN)
+        self.assertTrue("markdown" in settings.PYPANDOC_MARKDOWN)
 
 
 class RssModelTest(TestCase):

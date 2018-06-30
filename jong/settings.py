@@ -177,3 +177,4 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 # Where is Joplin
 JOPLIN_WEBCLIPPER = 41184                   # the port used by the webclipper from the menu "Tools > Webclipper option"
 
+PYPANDOC_MARKDOWN = 'markdown_github'
