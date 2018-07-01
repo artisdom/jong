@@ -2,13 +2,14 @@ from setuptools import setup, find_packages
 from jong import __version__ as version
 
 install_requires = [
-    'arrow',
+    'arrow==0.12.1',
+    'asks==2.0.0',
     'Django>=2.0,<3.0',
-    'feedparser',
-    'pypandoc',
-    'asks',
-    'trio',
-    'requests',
+    'django-environ==0.4.5',
+    'feedparser==5.2.1',
+    'pypandoc==1.4',
+    'requests==2.18.4',
+    'trio==0.4.0',
 ]
 
 setup(

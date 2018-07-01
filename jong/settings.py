@@ -9,8 +9,17 @@ https://docs.djangoproject.com/en/2.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.0/ref/settings/
 """
-
 import os
+import environ
+
+ROOT_DIR = environ.Path(__file__) - 1
+APPS_DIR = ROOT_DIR.path('jong')
+
+env = environ.Env()
+env_file = str(ROOT_DIR.path('.env'))
+# print('Loading : {}'.format(env_file))
+env.read_env(env_file)
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,12 +29,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 's9n=mjhkj@0p&=)dp-qz8s7me1ehof67g8_0y_9*r6x#qshjw9'
+SECRET_KEY = env.str('SECRET_KEY', default='DEFINE A NICE SECRET KEY :=)')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=False),
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
 
 # Application definition
@@ -76,8 +85,8 @@ WSGI_APPLICATION = 'jong.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': env.str('DB_ENGINE', default='django.db.backends.sqlite3'),
+        'NAME': os.path.join(BASE_DIR, env.str('DB_NAME', default='db.sqlite3')),
     }
 }
 
@@ -104,15 +113,15 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = env.str('LANGUAGE_CODE', default='fr-fr')
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = env.str('TIME_ZONE', default='Europe/Paris')
 
-USE_I18N = True
+USE_I18N = env.bool('USE_I18N', default=True)
 
-USE_L10N = True
+USE_L10N = env.bool('USE_L10N', default=True)
 
-USE_TZ = True
+USE_TZ = env.bool('USE_TZ', default=True)
 
 
 LOGGING = {
@@ -175,6 +184,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Where is Joplin
-JOPLIN_WEBCLIPPER = 41184                   # the port used by the webclipper from the menu "Tools > Webclipper option"
+JOPLIN_WEBCLIPPER = env.int('JOPLIN_WEBCLIPPER', default=41184)
+# the port used by the webclipper from the menu "Tools > Webclipper option"
 
-PYPANDOC_MARKDOWN = 'markdown_github'
+PYPANDOC_MARKDOWN = env.str('PYPANDOC_MARKDOWN', default='markdown_github')
