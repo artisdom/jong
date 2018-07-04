@@ -7,7 +7,7 @@ import requests
 
    Query the Joplin Webclipper service
    Return the folders
-   
+
 """
 
 
