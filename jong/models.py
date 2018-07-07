@@ -13,6 +13,10 @@ class Rss(models.Model):
     url = models.URLField()
     tag = models.CharField(max_length=40, null=True, blank=True)
     date_triggered = models.DateTimeField(auto_now=True, auto_created=True)
+    # to ignore the not well formed RSS feeds
+    # bozo detection https://pythonhosted.org/feedparser/bozo.html?highlight=bozo
+    # default is False : we do not ignore not well formed Feeds.
+    bypass_bozo = models.BooleanField(default=False)
 
     def show(self):
         """

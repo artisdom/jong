@@ -1,6 +1,6 @@
 # coding: utf-8
 from django import forms
-from django.forms import TextInput
+from django.forms import TextInput, CheckboxInput
 # Jong
 from jong.models import Rss
 from jong.utils import folders
@@ -26,6 +26,7 @@ class RssForm(forms.ModelForm):
             'notebook': TextInput(attrs={'class': 'form-control'}),
             'tag': TextInput(attrs={'class': 'form-control'}),
             'status': TextInput(attrs={'class': 'form-control'}),
+            'bypass_bozo': CheckboxInput(attrs={'class': 'checkbox'}),
         }
 
     notebook = forms.ChoiceField()

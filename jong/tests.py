@@ -31,11 +31,13 @@ class RssModelTest(TestCase):
         status = True
         notebook = 'News'
         tag = 'Foobar'
+        bypass_bozo = 0
         self.r = Rss.objects.create(url=url,
                                     name=name,
                                     status=status,
                                     notebook=notebook,
-                                    tag=tag)
+                                    tag=tag,
+                                    bypass_bozo=bypass_bozo)
 
     def test_rss(self):
         # r = self.create_rss()
@@ -58,11 +60,13 @@ class CoreTest(TestCase):
         status = True
         notebook = 'News'
         tag = 'Foobar'
+        bypass_bozo = 0
         self.r = Rss.objects.create(url=url,
                                     name=name,
                                     status=status,
                                     notebook=notebook,
-                                    tag=tag)
+                                    tag=tag,
+                                    bypass_bozo=bypass_bozo)
 
     def test_update_date(self):
         self.c._update_date(self.r.id)
@@ -113,11 +117,13 @@ class RssFormTest(TestCase):
         status = True
         notebook = 'News'
         tag = 'Foobar'
+        bypass_bozo = 0
         data = {'name': name,
                 'url': url,
                 'notebook': notebook,
                 'tag': tag,
                 'status': status,
+                'bypass_bozo': bypass_bozo,
                 }
         form = RssForm(data=data)
         self.assertTrue(form.is_valid())

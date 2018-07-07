@@ -101,16 +101,19 @@ class Core:
 
         return content
 
-    def get_data(self, url_to_parse):
+    def get_data(self, url_to_parse, bypass_bozo=False):
         """
         read the data from a given URL or path to a local file
         :param url_to_parse:
+        :param bypass_bozo: boolean to ignore not well formed Feeds
         :return: Feeds if Feeds well formed
         """
         data = feedparser.parse(url_to_parse)
         # if the feeds is not well formed, return no data at all
-        if data.bozo == 1:
+        if bypass_bozo is False and data.bozo == 1:
             data.entries = ''
+            logger.info("%s: is not valid. You can tick the checkbox 'Bypass Feeds error ?' to force the process" %
+                        url_to_parse)
 
         return data
 
@@ -184,13 +187,12 @@ async def go():
                     now = arrow.utcnow().to(settings.TIME_ZONE)
 
                     # retrieve the data
-                    feeds = core.get_data(rss.url)
+                    feeds = core.get_data(rss.url, rss.bypass_bozo)
 
                     for entry in feeds.entries:
                         # entry.*_parsed may be None when the date in a RSS Feed is invalid
                         # so will have the "now" date as default
                         published = core.get_published(entry)
-
                         if published:
                             published = arrow.get(str(published)).to(settings.TIME_ZONE)
                         # create md file only for unread item (when publish is less than last triggered execution
