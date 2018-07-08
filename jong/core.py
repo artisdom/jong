@@ -200,3 +200,14 @@ async def go():
                             n.start_soon(core.create_note, entry, rss)
     else:
         logger.info('Check "Tools > Webclipper options"  if the service is enable')
+
+
+def report():
+
+    data = Rss.objects.filter(status=True).order_by('-date_triggered')
+    print("{:<30} {:<22} {:<30} {:<3}".format("Name", "Triggered", "Notebook", "Bypass Error?"))
+
+    for rss in data:
+        bozo = "Yes" if rss.bypass_bozo else "No"
+        fill = '      '
+        print("{:<30} {:%Y-%m-%d %H:%M}{} {:<30} {:<3}".format(rss.name, rss.date_triggered, fill, rss.notebook, bozo))

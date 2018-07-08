@@ -66,6 +66,28 @@ run joplin desktop to enable the webclipper service, then start JONG by:
 this will display the name of the feed 
 Have a look at your Joplin desktop to find your news :)
 
+## Reporting
+
+run this command
+
+```
+./manage.py report 
+``` 
+
+to get the list of your feeds to check which one provided articles or not
+
+
+```shell
+Name                           Triggered              Notebook                       Bypass Error?
+Python Planet                  2018-07-08 09:00       Python                         Yes
+Sam et Max                     2018-07-04 17:00       Python                         No 
+Django                         2018-07-04 17:00       Django                         No 
+Un Odieux Connard              2018-07-04 17:00       Connard                        No 
+foxmask                        2018-06-29 18:01       Projets                        No 
+```
+
+this allow you to avoid to start the application and launch the browser, if you do not plan to add a new feed
+
 ## Running Tests
 
 run this if you want to be sure that everything is fine   
