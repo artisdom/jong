@@ -47,11 +47,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'jong',
+    'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -188,3 +191,29 @@ JOPLIN_WEBCLIPPER = env.int('JOPLIN_WEBCLIPPER', default=41184)
 # the port used by the webclipper from the menu "Tools > Webclipper option"
 
 PYPANDOC_MARKDOWN = env.str('PYPANDOC_MARKDOWN', default='markdown_github')
+
+#########################
+# CORS settings
+#########################
+CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = (
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'access-control-allow-headers',
+    'access-control-allow-origin ',
+    'cookiename',
+)
+
+CORS_ORIGIN_WHITELIST = (
+    'localhost:8080',
+    'localhost:8000',
+    '127.0.0.1:8080',
+    '127.0.0.1:8000',
+)
