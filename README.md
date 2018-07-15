@@ -94,3 +94,9 @@ run this if you want to be sure that everything is fine
 ```
 ./manage.py test -v2 
 ``` 
+
+
+## VueJS UI
+
+You can still use JONG with just Django or with VueJS if you prefer.
+To do so have a look at the README.md in the frontend folder

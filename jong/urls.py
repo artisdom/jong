@@ -14,7 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from django.conf.urls import url
 
 from jong.views import RssListView, RssCreateView, RssUpdateView, RssDeleteView, rss_switch_status
@@ -22,8 +22,9 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', RssListView.as_view(), name='base'),
     path('', RssListView.as_view(), name='rss'),
-    path('add', RssCreateView.as_view(), name='add'),
+    path('add/', RssCreateView.as_view(), name='add'),
     url(r'^edit/(?P<pk>\d+)$', RssUpdateView.as_view(), name='edit'),
     url(r'^switch/(?P<pk>\d+)$', rss_switch_status, name='switch'),
     url(r'^delete/(?P<pk>\d+)$', RssDeleteView.as_view(), name='delete'),
+    url(r'^api/jong/', include('jong.api.urls')),
 ]
