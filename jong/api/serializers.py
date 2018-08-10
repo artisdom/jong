@@ -9,3 +9,6 @@ class RssSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class FoldersSerializer(serializers.Serializer):
+
+    title = serializers.CharField(required=False, max_length=255)

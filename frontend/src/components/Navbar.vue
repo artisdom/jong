@@ -14,6 +14,7 @@
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
             <li>
+              <a href="#" title="Add a new Feed"><span class="glyphicon glyphicon-plus icon-white" @click="addFeed()"> New Feed</span></a>
             </li>
           </ul>
         </div>
@@ -23,10 +24,17 @@
 </template>
 
 <script>
+import { EventBus } from '../core/EventBus.js'
 export default {
   name: 'Navbar',
   data () {
     return {
+    }
+  },
+  methods: {
+    /* emit an addFeed event */
+    addFeed () {
+      EventBus.$emit('addFeed')
     }
   }
 }

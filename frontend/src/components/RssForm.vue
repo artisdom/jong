@@ -2,7 +2,7 @@
 <div>
   <form method="post" class="form-inline" @submit.prevent="doFeed" @keydown="errors.clear($event.target.title)">
     <fieldset>
-      <legend>Add a new feed</legend>
+      <legend>{{ what }} a feed</legend>
     <div class="form-group">
         <input placeholder="RSS Name" class="form-control" name="name" id="name" v-model="name"/>
         <span class="help is-danger" v-if="errors.has('name')" v-text="errors.getError('name')"></span>
@@ -12,8 +12,12 @@
         <span class="help is-danger" v-if="errors.has('url')" v-text="errors.getError('url')"></span>
     </div>
     <div class="form-group">
-      <input placeholder="Notebook" class="form-control" name="notebook" id="notebook" v-model="notebook"/>
-      <span class="help is-danger" v-if="errors.has('tags')" v-text="errors.getError('tags')"></span>
+      <span class="select">
+      <select v-model="notebook" class="form-control">
+          <option v-for="nb in notebooks" :key="nb.value" :value="nb.value">{{ nb.text }}</option>
+      </select>
+      </span>
+      <span class="help is-danger" v-if="errors.has('notebook')" v-text="errors.getError('notebook')"></span>
     </div>
     <div class="form-group">
        <input placeholder="Tags" class="form-control" name="tags" id="tags" v-model="tags"/>
@@ -46,9 +50,10 @@ export default {
       url: '',
       tags: '',
       bypass_bozo: 0,
-      notebooks: [],
+      notebooks: this.getFolders(),
       notebook: '',
       feed: '',
+      what: 'Add',
       errors: new Errors()
     }
   },
@@ -64,7 +69,7 @@ export default {
     /* add a new feed then emit an event so this new record will be added to the dom */
     addFeed () {
       this.axios.post('http://127.0.0.1:8000/api/jong/rss/', this.$data)
-        .then(res => {
+        .then((res) => {
           this.feed = this.$data
           this.feed.id = res.data.id
           this.feed.date_triggered = res.data.date_triggered
@@ -77,7 +82,7 @@ export default {
     /* update the feed then emit an event so this record will be refreshed to the dom */
     updateFeed (line) {
       this.axios.patch('http://127.0.0.1:8000/api/jong/rss/' + this.$data.id + '/', this.$data)
-        .then(res => {
+        .then((res) => {
           this.refresh()
           EventBus.$emit('updateFeed', line)
         })
@@ -90,7 +95,9 @@ export default {
       this.tags = line.tags
       this.bypass_bozo = line.bypass_bozo
       this.notebook = line.notebook
+      this.notebooks = this.getFolders()
       this.errors = new Errors()
+      this.what = 'Edit'
     },
     refresh () {
       this.id = 0
@@ -99,11 +106,24 @@ export default {
       this.tags = ''
       this.bypass_bozo = 0
       this.notebook = ''
+      this.what = 'Add'
+    },
+    getFolders () {
+      this.axios.get('http://127.0.0.1:8000/api/jong/folders/')
+        .then((res) => {
+          if (res.data.length > 0) {
+            this.notebooks = res.data
+          }
+        }).catch((error) => {
+          this.errors.record(error.res.data)
+          console.log(error)
+        })
     }
   },
   mounted () {
-    // edit a feed
+    // events to trigger
     EventBus.$on('editFeed', (line) => { this.editFeed(line) })
+    EventBus.$on('addFeed', () => { this.refresh() })
   }
 }
 </script>

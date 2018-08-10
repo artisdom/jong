@@ -1,8 +1,8 @@
 <template>
   <tbody>
-  <tr v-for="data in rss_list" v-bind:key="data.id">
+  <tr v-for="data in rss_list" :key="data.id">
     <td>{{ data.name }}</td>
-    <td><a v-bind:href="data.url" v-html="data.url" title="Go to this feed"></a></td>
+    <td><a :href="data.url" v-html="data.url" title="Go to this feed"></a></td>
     <td v-html="data.date_triggered"></td>
     <td v-html="data.notebook"></td>
     <td v-if='data.bypass_bozo === true'><span class="label label-danger">Yes</span></td><td v-else><span class="label label-success">No</span></td>

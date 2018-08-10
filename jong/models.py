@@ -27,3 +27,9 @@ class Rss(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Folders:
+
+    def __init__(self, title):
+        self.title = title
