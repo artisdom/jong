@@ -3,7 +3,7 @@ from jong.api.permissions import DjangoModelPermissions
 from jong.models import Rss
 from jong.utils import folders_set
 
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -23,7 +23,10 @@ class RssViewSet(viewsets.ModelViewSet):
     serializer_class = RssSerializer
     pagination_class = RssResultsSetPagination
     # filter the notes
+    filter_backends = (filters.OrderingFilter,)
     permission_classes = (DjangoModelPermissions, )
+    ordering_fields = ('name', )
+    ordering = ('name',)
 
 
 class FoldersAPIView(APIView):

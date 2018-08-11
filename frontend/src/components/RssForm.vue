@@ -20,8 +20,8 @@
       <span class="help is-danger" v-if="errors.has('notebook')" v-text="errors.getError('notebook')"></span>
     </div>
     <div class="form-group">
-       <input placeholder="Tags" class="form-control" name="tags" id="tags" v-model="tags"/>
-       <span class="help is-danger" v-if="errors.has('tags')" v-text="errors.getError('tags')"></span>
+       <input placeholder="Tag" class="form-control" name="tag" id="tag" v-model="tag"/>
+       <span class="help is-danger" v-if="errors.has('tag')" v-text="errors.getError('tag')"></span>
     </div>
     <div class="checkbox">
        <input type="checkbox" class="checkbox" name="bypass_bozo" id="bypass_bozo" v-model="bypass_bozo"/> Bypass Feeds error ?
@@ -48,7 +48,7 @@ export default {
       id: 0,
       name: '',
       url: '',
-      tags: '',
+      tag: '',
       bypass_bozo: 0,
       notebooks: this.getFolders(),
       notebook: '',
@@ -71,6 +71,7 @@ export default {
       this.axios.post('http://127.0.0.1:8000/api/jong/rss/', this.$data)
         .then((res) => {
           this.feed = this.$data
+          this.feed.status = true
           this.feed.id = res.data.id
           this.feed.date_triggered = res.data.date_triggered
           EventBus.$emit('addedFeed', this.feed)
@@ -92,7 +93,7 @@ export default {
       this.id = line.id
       this.name = line.name
       this.url = line.url
-      this.tags = line.tags
+      this.tag = line.tag
       this.bypass_bozo = line.bypass_bozo
       this.notebook = line.notebook
       this.notebooks = this.getFolders()
@@ -103,7 +104,7 @@ export default {
       this.id = 0
       this.name = ''
       this.url = ''
-      this.tags = ''
+      this.tag = ''
       this.bypass_bozo = 0
       this.notebook = ''
       this.what = 'Add'

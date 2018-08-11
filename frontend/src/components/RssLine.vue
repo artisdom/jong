@@ -10,6 +10,12 @@
       <button class="btn btn-sm btn-md btn-lg btn-success" role="button" @click="editFeed(data)">
         <span class="glyphicon glyphicon-pencil icon-white"></span>
       </button>
+      <button v-if='data.status === true' class="btn btn-sm btn-md btn-lg btn-primary" role="button" @click="switchStatusFeed(data)">
+        <span class="glyphicon glyphicon-off icon-white"></span>
+      </button>
+      <button v-else class="btn btn-sm btn-md btn-lg btn-warning" role="button" @click="switchStatusFeed(data)">
+        <span class="glyphicon glyphicon-off icon-white"></span>
+      </button>
       <button class="btn btn-sm btn-md btn-lg btn-danger" role="button" @click="removeFeed(data.id)">
         <span class="glyphicon glyphicon-trash icon-white"></span>
       </button>
@@ -36,6 +42,7 @@ export default {
         'bypass_bozo': line.bypass_bozo,
         'notebook': line.notebook,
         'id': line.id,
+        'status': 1,
         'date_triggered': line.date_triggered
       })
     },
@@ -50,6 +57,17 @@ export default {
     /* emit an edit event */
     editFeed (line) {
       EventBus.$emit('editFeed', line)
+    },
+    switchStatusFeed (line) {
+      if (line.status === false) {
+        line.status = true
+      } else {
+        line.status = false
+      }
+      this.axios.patch('http://127.0.0.1:8000/api/jong/rss/' + line.id + '/', line)
+        .then((res) => {
+          this.getData()
+        }).catch(error => this.errors.record(error.res.data))
     },
     /* get the data from the backend */
     getData () {
