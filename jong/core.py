@@ -126,7 +126,7 @@ class Core:
         """
         # call pypandoc to convert html to markdown
         content = pypandoc.convert(self.get_content(entry), settings.PYPANDOC_MARKDOWN, format='html')
-        content += '[Provided by {}]({})'.format(name, entry.link)
+        content += '<br/>[Provided by {}]({})'.format(name, entry.link)
         return content
 
     async def get_folders(self):

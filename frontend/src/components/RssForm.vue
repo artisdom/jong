@@ -71,7 +71,6 @@ export default {
       this.axios.post('http://127.0.0.1:8000/api/jong/rss/', this.$data)
         .then((res) => {
           this.feed = this.$data
-          this.feed.status = true
           this.feed.id = res.data.id
           this.feed.date_triggered = res.data.date_triggered
           EventBus.$emit('addedFeed', this.feed)

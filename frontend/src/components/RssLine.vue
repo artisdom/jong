@@ -36,23 +36,16 @@ export default {
   methods: {
     /* add the new feed to the list */
     addedFeed (line) {
-      this.rss_list.push({
-        'name': line.name,
-        'url': line.url,
-        'bypass_bozo': line.bypass_bozo,
-        'notebook': line.notebook,
-        'id': line.id,
-        'status': 1,
-        'date_triggered': line.date_triggered
-      })
+      this.getData()
     },
     /* drop the line of the feed */
     removeFeed (id) {
       this.axios.delete('http://127.0.0.1:8000/api/jong/rss/' + id + '/'
-      ).catch((error) => {
+      ).then((res) => {
+        this.getData()
+      }).catch((error) => {
         console.log(error)
       })
-      this.rss_list.splice(this.rss_list.indexOf(id), 1)
     },
     /* emit an edit event */
     editFeed (line) {
