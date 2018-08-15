@@ -24,17 +24,10 @@
 </template>
 
 <script>
-import { EventBus } from '../core/EventBus.js'
 export default {
   name: 'Navbar',
   data () {
     return {
-    }
-  },
-  methods: {
-    /* emit an addFeed event */
-    addFeed () {
-      EventBus.$emit('addFeed')
     }
   }
 }

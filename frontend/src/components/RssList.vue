@@ -6,6 +6,7 @@
       <th>URL</th>
       <th>Triggered</th>
       <th>Notebook</th>
+      <th>Tag</th>
       <th>Bypass Errors</th>
       <th>Actions</th>
     </tr>
@@ -16,7 +17,6 @@
 
 <script>
 /* to broadcast an event */
-/* import { EventBus } from '../core/EventBus.js' */
 import RssLine from '../components/RssLine.vue'
 export default {
   components: { RssLine },

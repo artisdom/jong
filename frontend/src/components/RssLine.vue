@@ -1,10 +1,11 @@
 <template>
   <tbody>
-  <tr v-for="data in rss_list" :key="data.id">
+  <tr v-for="data in feeds" :key="data.id">
     <td>{{ data.name }}</td>
     <td><a :href="data.url" v-html="data.url" title="Go to this feed"></a></td>
     <td v-html="data.date_triggered"></td>
     <td v-html="data.notebook"></td>
+    <td v-html="data.tag"></td>
     <td v-if='data.bypass_bozo === true'><span class="label label-danger">Yes</span></td><td v-else><span class="label label-success">No</span></td>
     <td>
       <button class="btn btn-sm btn-md btn-lg btn-success" role="button" @click="editFeed(data)">
@@ -25,57 +26,35 @@
 </template>
 
 <script>
-import { EventBus } from '../core/EventBus.js'
+/* Component to list the Feeds */
+import { mapActions } from 'vuex'
+
 export default {
   name: 'RssLine',
-  data () {
-    return {
-      rss_list: []
-    }
-  },
   methods: {
-    /* add the new feed to the list */
-    addedFeed (line) {
-      this.getData()
+    ...mapActions([
+      'loadFeeds',
+      'editFeed',
+      'switchStatusFeed',
+      'removeFeed'
+    ]),
+    editFeed (data) {
+      this.$store.dispatch('editFeed', data)
     },
-    /* drop the line of the feed */
+    switchStatusFeed (data) {
+      this.$store.dispatch('switchStatusFeed', data)
+    },
     removeFeed (id) {
-      this.axios.delete('http://127.0.0.1:8000/api/jong/rss/' + id + '/'
-      ).then((res) => {
-        this.getData()
-      }).catch((error) => {
-        console.log(error)
-      })
-    },
-    /* emit an edit event */
-    editFeed (line) {
-      EventBus.$emit('editFeed', line)
-    },
-    switchStatusFeed (line) {
-      if (line.status === false) {
-        line.status = true
-      } else {
-        line.status = false
-      }
-      this.axios.patch('http://127.0.0.1:8000/api/jong/rss/' + line.id + '/', line)
-        .then((res) => {
-          this.getData()
-        }).catch(error => this.errors.record(error.res.data))
-    },
-    /* get the data from the backend */
-    getData () {
-      this.axios.get('http://127.0.0.1:8000/api/jong/rss/').then((res) => {
-        if (res.data.count > 0) {
-          this.rss_list = res.data.results
-        }
-      })
+      this.$store.dispatch('removeFeed', id)
     }
   },
-
-  mounted () {
-    this.getData()
-    EventBus.$on('addedFeed', (line) => { this.addedFeed(line) })
-    EventBus.$on('updateFeed', () => { this.getData() })
+  computed: {
+    feeds () {
+      return this.$store.getters.feeds
+    }
+  },
+  created () {
+    return this.$store.dispatch('loadFeeds')
   }
 }
 </script>
