@@ -200,4 +200,3 @@ async def go():
                             n.start_soon(core.create_note, entry, rss)
     else:
         logger.info('Check "Tools > Webclipper options"  if the service is enable')
-

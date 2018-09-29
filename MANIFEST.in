@@ -3,4 +3,4 @@ include *.md *.txt
 recursive-include jong *.html *.png *.css *.gif *.jpg *.jpeg
 recursive-include jong/static *
 recursive-include jong/templates *
-
+recursive-include jong/frontend *
