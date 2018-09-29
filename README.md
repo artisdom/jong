@@ -88,6 +88,38 @@ foxmask                        2018-06-29 18:01       Projets                   
 
 this allow you to avoid to start the application and launch the browser, if you do not plan to add a new feed
 
+## Disabling / Enabling Feeds
+
+if you don't need / want to acces to the web app to deal with the status of the feeds
+
+```
+./manage.py switch <id> 
+``` 
+
+will display 
+
+```python
+./manage.py switch 24
+Successfully switched RSS "24"
+```
+
+then to check the status
+
+``` ptyhon
+./manage.py report
+ID    Name                           Triggered              Notebook                       Status Bypass Error?
+   28 Gamekult                       2018-08-22 18:27       News                           0      No 
+   26 Gameblog                       2018-08-18 14:21       News                           0      Yes
+   24 Frandroid                      2018-09-29 19:55       Smartphone                     1      Yes
+    5 Python Planet                  2018-09-27 19:00       Python                         1      Yes
+   25 Numerama                       2018-09-27 19:00       News                           1      Yes
+   29 GithubBlog                     2018-09-25 22:20       Github                         1      No 
+   23 Github                         2018-09-20 18:27       Github                         1      No 
+    8 Un Odieux Connard              2018-09-20 18:27       Connard                        1      No 
+    7 Sam et Max                     2018-09-09 16:00       Python                         1      No 
+    9 Django                         2018-08-31 19:00       Django                         1      No 
+```
+
 ## Running Tests
 
 run this if you want to be sure that everything is fine   
