@@ -12,11 +12,15 @@ install_requires = [
     'trio==0.4.0',
 ]
 
+description=open('README.md').read()
+
 setup(
     name='jong',
     version=version,
     description='JOplin Notes Generator',
-    long_description=open('README.md').read(),
+    long_description=description,
+    long_description_content=description,
+    long_description_content_type='text/markdown',  # This is important!
     author='FoxMaSk',
     maintainer='FoxMaSk',
     author_email='foxmask at protonmail',

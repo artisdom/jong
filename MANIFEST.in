@@ -1,6 +1,13 @@
 include *.md *.txt
 
-recursive-include jong *.html *.png *.css *.gif *.jpg *.jpeg
 recursive-include jong/static *
 recursive-include jong/templates *
-recursive-include jong/frontend *
+
+recursive-include frontend/build *
+recursive-include frontend/config *
+recursive-include frontend/src *
+recursive-include frontend/static *
+recursive-include frontend *.html *.json
+recursive-exclude frontend/node_modules *
+recursive-exclude frontend/.idea *
+
