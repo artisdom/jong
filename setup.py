@@ -8,7 +8,7 @@ install_requires = [
     'django-environ==0.4.5',
     'feedparser==5.2.1',
     'pypandoc==1.4',
-    'requests==2.18.4',
+    'requests==2.20.0',
     'trio==0.4.0',
 ]
 
