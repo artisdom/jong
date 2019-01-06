@@ -101,14 +101,15 @@ class Core:
 
         return content
 
-    def get_data(self, url_to_parse, bypass_bozo=False):
+    async def get_data(self, url_to_parse, bypass_bozo=False):
         """
         read the data from a given URL or path to a local file
         :param url_to_parse:
         :param bypass_bozo: boolean to ignore not well formed Feeds
         :return: Feeds if Feeds well formed
         """
-        data = feedparser.parse(url_to_parse)
+        data = await asks.get(url_to_parse)
+        data = feedparser.parse(data.text)
         # if the feeds is not well formed, return no data at all
         if bypass_bozo is False and data.bozo == 1:
             data.entries = ''
@@ -187,8 +188,7 @@ async def go():
                     now = arrow.utcnow().to(settings.TIME_ZONE)
 
                     # retrieve the data
-                    feeds = core.get_data(rss.url, rss.bypass_bozo)
-
+                    feeds = await core.get_data(rss.url, rss.bypass_bozo)
                     for entry in feeds.entries:
                         # entry.*_parsed may be None when the date in a RSS Feed is invalid
                         # so will have the "now" date as default

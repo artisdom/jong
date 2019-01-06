@@ -93,9 +93,9 @@ class CoreTest(TestCase):
         res = self.c.get_content(data)
         assert type(res) is str
 
-    def test_get_data(self):
+    async def test_get_data(self):
         url = 'http://planetpython.org/rss20.xml'
-        res = self.c.get_data(url)
+        res = await self.c.get_data(url)
         assert type(res) is feedparser.FeedParserDict or type(res) is str
 
     def test_joplin_create_note(self):

@@ -6,3 +6,5 @@ feedparser==5.2.1
 pypandoc==1.4
 requests==2.20.0
 trio==0.4.0
+djangorestframework==3.9.0
+django-cors-headers==2.4.0
