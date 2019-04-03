@@ -3,7 +3,9 @@
 """
     News generator for creating joplin notes
 
-    The script use the webclipper service port - Enable the service from the menu "Tools > Webclipper option"
+    The script use the webclipper service port - 
+    Enable the service from the menu "Tools > Webclipper option"
+
     Launch
 
     python manage.py run
@@ -15,20 +17,16 @@ from __future__ import unicode_literals
 import datetime
 from logging import getLogger
 import time
-
-# django
-from django.conf import settings
-
-# project
-from jong.models import Rss
-
 # external lib
 import asks
 import arrow
 import feedparser
 import pypandoc
 import trio
-
+# django
+from django.conf import settings
+# project
+from jong.models import Rss
 # create logger
 logger = getLogger('jong.jong')
 
@@ -113,8 +111,9 @@ class Core:
         # if the feeds is not well formed, return no data at all
         if bypass_bozo is False and data.bozo == 1:
             data.entries = ''
-            logger.info("%s: is not valid. You can tick the checkbox 'Bypass Feeds error ?' to force the process" %
-                        url_to_parse)
+            log = f"{url_to_parse}: is not valid. You can tick the checkbox "
+            "'Bypass Feeds error ?' to force the process"
+            logger.info(log)
 
         return data
 
@@ -165,10 +164,12 @@ class Core:
                 'parent_id': notebook_id,
                 'author': rss.name,
                 'source_url': entry.link}
-        res = await asks.post("http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER), json=data)
+        url = "http://127.0.0.1:{}/notes".format(settings.JOPLIN_WEBCLIPPER)
+        res = await asks.post(url, json=data)
         if res.status_code == 200:
             self._update_date(rss.id)
-            logger.info("%s: article added %s" % (rss.name, entry.title))
+            log = "{}: article added {}".format(rss.name, entry.title)
+            logger.info(log)
 
 
 async def go():
@@ -182,7 +183,8 @@ async def go():
             async with trio.open_nursery() as n:
 
                 for rss in data:
-                    logger.info("reading %s" % rss.name)
+                    log = "reading {}".format(rss.name)
+                    logger.info(log)
                     date_triggered = arrow.get(rss.date_triggered).to(settings.TIME_ZONE)
 
                     now = arrow.utcnow().to(settings.TIME_ZONE)
@@ -195,8 +197,10 @@ async def go():
                         published = core.get_published(entry)
                         if published:
                             published = arrow.get(str(published)).to(settings.TIME_ZONE)
-                        # create md file only for unread item (when publish is less than last triggered execution
-                        if date_triggered is not None and published is not None and now >= published >= date_triggered:
+                        # create md file only for unread item (when publish is less than 
+                        # last triggered execution
+                        if date_triggered is not None and published is not None \
+                        and now >= published >= date_triggered:
                             n.start_soon(core.create_note, entry, rss)
     else:
         logger.info('Check "Tools > Webclipper options"  if the service is enable')
