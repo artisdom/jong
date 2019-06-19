@@ -127,8 +127,11 @@ run this if you want to be sure that everything is fine
 ./manage.py test -v2 
 ``` 
 
+## Running the app 
+```
+./manage.py runserver
+Starting development server at http://127.0.0.1:8000/
+ 
+``` 
 
-## VueJS UI
-
-You can still use JONG with just Django or with VueJS if you prefer.
-To do so have a look at the README.md in the frontend folder
+access the app from http://localhost:8000/
